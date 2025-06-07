@@ -340,12 +340,19 @@ if (MSVC)
   target_compile_definitions(OpenSCAD PRIVATE _USE_MATH_DEFINES)
   target_compile_definitions(OpenSCAD PRIVATE NOMINMAX)
 
+  # Directly linking Eigen3 Directory now, ideally shouldn't do this
+  # set(Eigen3_DIR "C:/vcpkg/installed/x64-windows/share/eigen3")
+  # set(Boost_DIR "C:/vcpkg/installed/x64-windows/share/boost")
+  message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+  message(STATUS "Eigen3_DIR: ${Eigen3_DIR}")
+  message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+  message(STATUS "Boost_LIBRARIES: ${Boost_LIBRARIES}")
   find_package(Eigen3 CONFIG REQUIRED)
   target_link_libraries(OpenSCAD PRIVATE Eigen3::Eigen)
   message(STATUS "Eigen: ${Eigen3_VERSION}")
-
+  
   set(Boost_USE_STATIC_LIBS TRUE)
-  find_package(Boost 1.70 REQUIRED COMPONENTS system regex program_options)
+  find_package(Boost REQUIRED COMPONENTS system regex program_options)
   message(STATUS "Boost: ${Boost_VERSION}")
   target_include_directories(OpenSCAD SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
   target_link_libraries(OpenSCAD PRIVATE ${Boost_LIBRARIES})

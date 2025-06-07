@@ -1,6 +1,6 @@
 ﻿{
   "configurations": [
-		{
+		/* {
 			"name": "x86-Debug",
 			"generator": "Ninja",
 			"configurationType": "Debug",
@@ -25,7 +25,7 @@
 			"cmakeCommandArgs": "--no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_PATH}\\scripts\\buildsystems\\vcpkg.cmake -DCMAKE_CXX_FLAGS=\"/we4316 /EHsc\"",
 			"buildCommandArgs": "-v",
 			"ctestCommandArgs": ""
-		},
+		}, */
 		{
 			"name": "x64-Debug",
 			"generator": "Ninja",
@@ -35,7 +35,7 @@
 			],
 			"buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
 			"installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-			"cmakeCommandArgs": "--no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_PATH}\\scripts\\buildsystems\\vcpkg.cmake -DCMAKE_CXX_FLAGS=\"/we4316 /EHsc\"",
+			"cmakeCommandArgs": "--no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_PATH}\\scripts\\buildsystems\\vcpkg.cmake -DCMAKE_CXX_FLAGS=\"/we4316 /EHsc\" -DVCPKG_TARGET_TRIPLET=x64-windows",
 			"buildCommandArgs": "-v",
 			"ctestCommandArgs": ""
 		},
@@ -48,7 +48,7 @@
 			],
 			"buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
 			"installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-			"cmakeCommandArgs": "--no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_PATH}\\scripts\\buildsystems\\vcpkg.cmake -DCMAKE_CXX_FLAGS=\"/we4316 /EHsc\"",
+			"cmakeCommandArgs": "--no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_PATH}\\scripts\\buildsystems\\vcpkg.cmake -DCMAKE_CXX_FLAGS=\"/we4316 /EHsc\" -DVCPKG_TARGET_TRIPLET=x64-windows",
 			"buildCommandArgs": "-v",
 			"ctestCommandArgs": ""
 		}
