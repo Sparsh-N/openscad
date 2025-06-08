@@ -26,6 +26,7 @@ cmake -B build -S . ^
     -DVCPKG_TARGET_TRIPLET=x64-windows ^
     -DUSE_BUILTIN_OPENCSG=TRUE ^
     -DENABLE_CAIRO=FALSE ^
+    -DHEADLESS=ON ^
     -DCMAKE_EXE_LINKER_FLAGS="/manifest:no" ^
     -DCMAKE_MODULE_LINKER_FLAGS="/manifest:no" ^
     -DCMAKE_SHARED_LINKER_FLAGS="/manifest:no"

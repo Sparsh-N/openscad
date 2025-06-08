@@ -24,6 +24,8 @@
 #include <QRegularExpression>
 #include <QShortcut>
 #include <Qsci/qscicommandset.h>
+#include <Qsci/qsciscintilla.h>
+#include <Qsci/*>
 
 #include "gui/Preferences.h"
 #include "platform/PlatformUtils.h"
@@ -302,7 +304,7 @@ void ScintillaEditor::addTemplate(const fs::path& path)
 
 void ScintillaEditor::displayTemplates()
 {
-  qsci->showUserList(1, userList);
+  //qsci->showUserList(1, userList);
 }
 
 void ScintillaEditor::foldUnfold()
@@ -355,17 +357,17 @@ void ScintillaEditor::setupAutoComplete(const bool forceOff)
   const bool configValue = GlobalPreferences::inst()->getValue("editor/enableAutocomplete").toBool();
   const bool enable = configValue && !forceOff;
 
-  if (enable) {
-    qsci->setAutoCompletionSource(QsciScintilla::AcsAPIs);
-    qsci->setAutoCompletionFillupsEnabled(false);
-    qsci->setAutoCompletionFillups("(");
-    qsci->setCallTipsVisible(10);
-    qsci->setCallTipsStyle(QsciScintilla::CallTipsContext);
-  } else {
-    qsci->setAutoCompletionSource(QsciScintilla::AcsNone);
-    qsci->setAutoCompletionFillupsEnabled(false);
-    qsci->setCallTipsStyle(QsciScintilla::CallTipsNone);
-  }
+  // if (enable) {
+  //   qsci->setAutoCompletionSource(QsciScintilla::AcsAPIs);
+  //   qsci->setAutoCompletionFillupsEnabled(false);
+  //   qsci->setAutoCompletionFillups("(");
+  //   qsci->setCallTipsVisible(10);
+  //   qsci->setCallTipsStyle(QsciScintilla::CallTipsContext);
+  // } else {
+  //   qsci->setAutoCompletionSource(QsciScintilla::AcsNone);
+  //   qsci->setAutoCompletionFillupsEnabled(false);
+  //   qsci->setCallTipsStyle(QsciScintilla::CallTipsNone);
+  // }
 
   int val = GlobalPreferences::inst()->getValue("editor/characterThreshold").toInt();
   qsci->setAutoCompletionThreshold(val <= 0 ? 1 : val);
@@ -1368,16 +1370,16 @@ void ScintillaEditor::onUserListSelected(const int, const QString& text)
 
 void ScintillaEditor::onAutocompleteChanged(bool state)
 {
-  if (state) {
-    qsci->setAutoCompletionSource(QsciScintilla::AcsAPIs);
-    qsci->setAutoCompletionFillupsEnabled(true);
-    qsci->setCallTipsVisible(10);
-    qsci->setCallTipsStyle(QsciScintilla::CallTipsContext);
-  } else {
-    qsci->setAutoCompletionSource(QsciScintilla::AcsNone);
-    qsci->setAutoCompletionFillupsEnabled(false);
-    qsci->setCallTipsStyle(QsciScintilla::CallTipsNone);
-  }
+  // if (state) {
+  //   qsci->setAutoCompletionSource(QsciScintilla::AcsAPIs);
+  //   qsci->setAutoCompletionFillupsEnabled(true);
+  //   qsci->setCallTipsVisible(10);
+  //   qsci->setCallTipsStyle(QsciScintilla::CallTipsContext);
+  // } else {
+  //   qsci->setAutoCompletionSource(QsciScintilla::AcsNone);
+  //   qsci->setAutoCompletionFillupsEnabled(false);
+  //   qsci->setCallTipsStyle(QsciScintilla::CallTipsNone);
+  // }
 }
 
 void ScintillaEditor::onCharacterThresholdChanged(int val)
