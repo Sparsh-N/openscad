@@ -29,7 +29,9 @@ cmake -B build -S . ^
     -DHEADLESS=ON ^
     -DCMAKE_EXE_LINKER_FLAGS="/manifest:no" ^
     -DCMAKE_MODULE_LINKER_FLAGS="/manifest:no" ^
-    -DCMAKE_SHARED_LINKER_FLAGS="/manifest:no"
+    -DCMAKE_SHARED_LINKER_FLAGS="/manifest:no" ^
+    -G "Visual Studio 17 2022" ^
+    -A x64
 
 @REM cmake --build build --config Debug
 @REM cmake --build build --config Release currently not working, first trying a vs sln based approach.

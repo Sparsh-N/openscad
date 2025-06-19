@@ -1376,7 +1376,14 @@ if (SORT_BUILD)
 endif()
 
 target_sources(OpenSCAD PRIVATE ${Sources} ${RESOURCE_FILES})
-find_program(SHELL_EXE NAMES sh bash $ENV{SHELL})
+if (MSVC)
+  find_program(SHELL_EXE NAMES bash PATHS "C:/Program Files/Git/bin" NO_DEFAULT_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+  if(NOT SHELL_EXE)
+    find_program(SHELL_EXE NAMES bash NO_SYSTEM_ENVIRONMENT_PATH)
+  endif()
+else()
+  find_program(SHELL_EXE NAMES sh bash $ENV{SHELL})
+endif()
 add_custom_command(TARGET OpenSCAD POST_BUILD
     COMMAND "${SHELL_EXE}"
     ARGS "${CMAKE_CURRENT_LIST_DIR}/scripts/translation-make.sh" "${SUFFIX_WITH_DASH}"
