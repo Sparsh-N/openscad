@@ -33,5 +33,5 @@ cmake -B build -S . ^
     -G "Visual Studio 17 2022" ^
     -A x64
 
-@REM cmake --build build --config Debug
+cmake --build build --config Debug
 @REM cmake --build build --config Release currently not working, first trying a vs sln based approach.

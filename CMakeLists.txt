@@ -353,7 +353,7 @@ if (MSVC)
   message(STATUS "Eigen: ${Eigen3_VERSION}")
   
   set(Boost_USE_STATIC_LIBS TRUE)
-  find_package(Boost REQUIRED COMPONENTS system regex program_options)
+  find_package(Boost 1.70 REQUIRED COMPONENTS system regex program_options)
   message(STATUS "Boost: ${Boost_VERSION}")
   target_include_directories(OpenSCAD SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
   target_link_libraries(OpenSCAD PRIVATE ${Boost_LIBRARIES})
