@@ -1,0 +1,55 @@
+name: Windows Experimental Tests - MSVC
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        qt: [ qt5, qt6 ]
+    runs-on: windows-latest
+    name: windows-latest ${{ matrix.qt }}
+    env:
+      VCPKG_DEFAULT_TRIPLET: x64-windows # no other triplet to use in this case, maybe x86 windows to build all binaries?
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup (detached) tmate session if enabled
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+        with:
+          detached: true
+      - uses: lukka/get-cmake@latest # not sure if needed, will run again with this option disabled.  
+      - name: Setup vcpkg environment
+        uses: lukka/run-vcpkg@v11
+      - name: Build OpenSCAD
+        run: |
+          git submodule update --init --recursive
+          mkdir build && cd build
+          ./scripts/build_vcpkg.bat
+      - name: Run Test Suite
+        run: | # ctest may have issues with the binaries being built in /build/Debug, etc.
+          cd build
+          ctest -j4
+      - name: Setup (detached) tmate session if enabled
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+      - name: Upload Test Result Report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: Test Result Report (Windows ${{ matrix.qt }})
+          path: |
+            build/Testing/Temporary/*_report.html
+            build/Testing/Temporary/LastTest.log

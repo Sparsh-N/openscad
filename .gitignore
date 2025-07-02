@@ -71,6 +71,7 @@ src/*.debug
 /build
 /build-web
 /release
+/vcpkg_installed
 tests/DartConfiguration.tcl
 tests/__pycache__/
 tests/venv

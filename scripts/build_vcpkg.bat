@@ -17,21 +17,21 @@ rem Find vcpkg root first so that we can bail early if it's not found.
 @REM     set VCPKG_ROOT=%VCPKG_ROOT:~0,-1%
 @REM     echo Set VCPKG_ROOT to %VCPKG_ROOT%
 @REM )
-@REM vcpkg install --triplet x64-windows
 
+rem vcpkg install --triplet x64-windows # already ran once, it works
 mkdir build
-
-cmake -B build -S . ^
-    -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ^
-    -DVCPKG_TARGET_TRIPLET=x64-windows ^
-    -DUSE_BUILTIN_OPENCSG=TRUE ^
-    -DENABLE_CAIRO=FALSE ^
-    -DHEADLESS=ON ^
-    -DCMAKE_EXE_LINKER_FLAGS="/manifest:no" ^
-    -DCMAKE_MODULE_LINKER_FLAGS="/manifest:no" ^
-    -DCMAKE_SHARED_LINKER_FLAGS="/manifest:no" ^
-    -G "Visual Studio 17 2022" ^
-    -A x64
-
-cmake --build build --config Debug
-@REM cmake --build build --config Release currently not working, first trying a vs sln based approach.
+cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DUSE_BUILTIN_OPENCSG=TRUE -DENABLE_CAIRO=FALSE -DHEADLESS=ON -DCMAKE_EXE_LINKER_FLAGS="/manifest:no" -DCMAKE_MODULE_LINKER_FLAGS="/manifest:no" -DCMAKE_SHARED_LINKER_FLAGS="/manifest:no"
+cmake --build build
+@REM cmake -B build -S . ^
+@REM     -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ^
+@REM     -DVCPKG_TARGET_TRIPLET=x64-windows ^
+@REM     -DUSE_BUILTIN_OPENCSG=TRUE ^
+@REM     -DENABLE_CAIRO=FALSE ^
+@REM     -DHEADLESS=ON ^
+@REM     -DCMAKE_EXE_LINKER_FLAGS="/manifest:no" ^
+@REM     -DCMAKE_MODULE_LINKER_FLAGS="/manifest:no" ^
+@REM     -DCMAKE_SHARED_LINKER_FLAGS="/manifest:no" ^
+@REM     -G "Visual Studio 17 2022" ^
+@REM     -A x64
+rem not related to vcpkg manifest ^^
+@REM cmake --build build --config Release

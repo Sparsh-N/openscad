@@ -328,14 +328,6 @@ macro(find_graphics)
 endmacro(find_graphics)
 
 if (MSVC)
-  # Disable distracting warning messages - Credit to roel-v branch
-  add_definitions(/wd4003)  # not enough arguments for function-like macro invocation
-  add_definitions(/wd4101)  # unreferenced local variable
-  add_definitions(/wd4005)  # macro redefinition
-  add_definitions(/wd4244)  # conversion, possible loss of data
-  add_definitions(/wd4267)  # '': conversion from '' to '', possible loss of data
-  add_definitions(/wd4305)  # '': truncation from '' to ''
-  add_definitions(/wd4996)  # '': This function or variable may be unsafe. Consider using [...]
   # Flex lexer options
   set(WINCOMPAT "--wincompat --nounistd")
   target_compile_definitions(OpenSCAD PRIVATE _USE_MATH_DEFINES)
