@@ -1541,10 +1541,8 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/nsis/extra-uninstall-commands.
 set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/openscad_cpack.cmake")
 set(CPACK_THREADS 0)
 
-if(ENABLE_TESTS)
-  enable_testing()
-  add_subdirectory(tests)
-endif()
+enable_testing()
+add_subdirectory(tests)
 
 if(OFFLINE_DOCS)
   add_subdirectory(resources)
