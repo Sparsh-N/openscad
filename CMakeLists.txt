@@ -232,13 +232,13 @@ set(OPENSCAD_LIB_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/objects")
 file(MAKE_DIRECTORY ${OPENSCAD_LIB_OUTPUT_DIR})
 
 # Default to Release build
-#if(NOT CMAKE_BUILD_TYPE)
-#  message(STATUS "CMAKE_BUILD_TYPE not specified.  Defaulting to 'Release'")
-#  message(STATUS "Usage: cmake -DCMAKE_BUILD_TYPE=[Debug|Release|RelWithDebInfo|MinSizeRel] .")
-#  set(CMAKE_BUILD_TYPE Release)
-#else()
-#  message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
-#endif()
+if(NOT CMAKE_BUILD_TYPE)
+ message(STATUS "CMAKE_BUILD_TYPE not specified.  Defaulting to 'Release'")
+ message(STATUS "Usage: cmake -DCMAKE_BUILD_TYPE=[Debug|Release|RelWithDebInfo|MinSizeRel] .")
+ set(CMAKE_BUILD_TYPE Release)
+else()
+ message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+endif()
 
 target_compile_options(OpenSCAD PRIVATE "$<$<CONFIG:DEBUG>:-DDEBUG>")
 
@@ -1376,10 +1376,10 @@ if (MSVC)
 else()
   find_program(SHELL_EXE NAMES sh bash $ENV{SHELL})
 endif()
-add_custom_command(TARGET OpenSCAD POST_BUILD
-    COMMAND "${SHELL_EXE}"
-    ARGS "${CMAKE_CURRENT_LIST_DIR}/scripts/translation-make.sh" "${SUFFIX_WITH_DASH}"
-    COMMENT "Compiling language files")
+# add_custom_command(TARGET OpenSCAD POST_BUILD
+#     COMMAND "${SHELL_EXE}"
+#     ARGS "${CMAKE_CURRENT_LIST_DIR}/scripts/translation-make.sh" "${SUFFIX_WITH_DASH}"
+#     COMMENT "Compiling language files")
 
 if(APPLE AND NOT APPLE_UNIX)
   set_target_properties(OpenSCAD PROPERTIES
