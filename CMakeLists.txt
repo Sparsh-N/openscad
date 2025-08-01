@@ -274,7 +274,8 @@ macro(find_graphics)
   if(NULLGL)
     target_compile_definitions(OpenSCAD PRIVATE NULLGL)
   else()
-
+    set(USE_BUILTIN_OPENCSG ON)
+    message(STATUS "USE_BUILTIN_OPENCSG: ${USE_BUILTIN_OPENCSG}")
     set(OPENSCAD_UNITY_BUILD ${CMAKE_UNITY_BUILD})
     set(CMAKE_UNITY_BUILD OFF)
     if(NOT USE_BUILTIN_OPENCSG)
@@ -330,6 +331,7 @@ if (MSVC)
   # Flex lexer options
   set(WINCOMPAT "--wincompat --nounistd")
   target_compile_definitions(OpenSCAD PRIVATE _USE_MATH_DEFINES)
+  target_compile_definitions(OpenSCAD PRIVATE NOMINMAX)
 
   find_package(Eigen3 CONFIG REQUIRED)
   target_link_libraries(OpenSCAD PRIVATE Eigen3::Eigen)
@@ -347,17 +349,18 @@ if (MSVC)
   target_include_directories(OpenSCAD SYSTEM PRIVATE ${HARFBUZZ_INCLUDE_DIRS}/harfbuzz)
   target_link_libraries(OpenSCAD PRIVATE harfbuzz::harfbuzz)
 
-  find_package(unofficial-fontconfig CONFIG REQUIRED)
+  find_package(unofficial-fontconfig CONFIG REQUIRED) # TODO Test if this is working or not
   target_link_libraries(OpenSCAD PRIVATE unofficial::fontconfig::fontconfig)
 
-  find_package(unofficial-glib CONFIG REQUIRED)
-  target_include_directories(OpenSCAD SYSTEM PRIVATE ${GLIB2_INCLUDE_DIRS})
-  target_link_libraries(OpenSCAD PRIVATE unofficial::glib::gio unofficial::glib::glib unofficial::glib::gmodule unofficial::glib::gobject)
+  # GLib not needed?
+  # find_package(unofficial-glib CONFIG REQUIRED)
+  # target_include_directories(OpenSCAD SYSTEM PRIVATE ${GLIB2_INCLUDE_DIRS})
+  # target_link_libraries(OpenSCAD PRIVATE unofficial::glib::gio unofficial::glib::glib unofficial::glib::gmodule unofficial::glib::gobject)
 
   find_package(double-conversion CONFIG REQUIRED)
   target_link_libraries(OpenSCAD PRIVATE double-conversion::double-conversion)
 
-  find_library(GETTEXT_LIBRARY libintl)
+  find_library(GETTEXT_LIBRARY libintl) # Switch to intl, as this it what vcpkg configures
   target_link_libraries(OpenSCAD PRIVATE ${GETTEXT_LIBRARY})
 
   # call before setting local CMAKE_MODULE_PATH so we use VCPKG version of FindGLEW
@@ -366,6 +369,7 @@ if (MSVC)
   # needed for QtQScintilla, maybe others
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 else()
+  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT OpenSCAD)
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
   if(MXECROSS)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/MXE")
@@ -462,7 +466,7 @@ message(STATUS "Freetype: ${FREETYPE_VERSION_STRING}")
 target_include_directories(OpenSCAD SYSTEM PRIVATE ${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(OpenSCAD PRIVATE ${FREETYPE_LIBRARIES})
 
-find_package(LibXml2 2.9 REQUIRED QUIET)
+find_package(LibXml2 2.11 REQUIRED QUIET)
 message(STATUS "LibXml2: ${LIBXML2_VERSION_STRING}")
 target_include_directories(OpenSCAD SYSTEM PRIVATE ${LIBXML2_INCLUDE_DIR})
 target_link_libraries(OpenSCAD PRIVATE ${LIBXML2_LIBRARIES})
@@ -534,21 +538,20 @@ message(STATUS "Flex: ${FLEX_VERSION}")
 find_package(BISON REQUIRED QUIET)
 message(STATUS "Bison: ${BISON_VERSION}")
 
-if(NOT MSVC)
-  find_package(Lib3MF)
-  if (Lib3MF_FOUND)
-    message(STATUS "lib3mf: ${Lib3MF_VERSION}")
-    target_link_libraries(OpenSCAD PRIVATE Lib3MF::Lib3MF)
-    target_compile_definitions(OpenSCAD PRIVATE ENABLE_LIB3MF)
-    if (Lib3MF_VERSION VERSION_GREATER_EQUAL 2)
-      set(LIB3MF_SOURCES src/io/export_3mf_v2.cc src/io/import_3mf_v2.cc)
-    else()
-      set(LIB3MF_SOURCES src/io/export_3mf_v1.cc src/io/import_3mf_v1.cc)
-    endif()
+# MSVC. The logic works and is practically the same, why not just remove the if case altogether?
+find_package(Lib3MF)
+if (Lib3MF_FOUND)
+  message(STATUS "lib3mf: ${Lib3MF_VERSION}")
+  target_link_libraries(OpenSCAD PRIVATE Lib3MF::Lib3MF)
+  target_compile_definitions(OpenSCAD PRIVATE ENABLE_LIB3MF)
+  if (Lib3MF_VERSION VERSION_GREATER_EQUAL 2)
+    set(LIB3MF_SOURCES src/io/export_3mf_v2.cc src/io/import_3mf_v2.cc)
   else()
-    set(LIB3MF_SOURCES src/io/export_3mf_dummy.cc src/io/import_3mf_dummy.cc)
-    message(STATUS "lib3mf: disabled")
+    set(LIB3MF_SOURCES src/io/export_3mf_v1.cc src/io/import_3mf_v1.cc)
   endif()
+else()
+  set(LIB3MF_SOURCES src/io/export_3mf_dummy.cc src/io/import_3mf_dummy.cc)
+  message(STATUS "lib3mf: disabled")
 endif()
 
 # Automatically add the current source and build directories to the include path.
@@ -1334,6 +1337,7 @@ if (SORT_BUILD)
 endif()
 
 target_sources(OpenSCAD PRIVATE ${Sources} ${RESOURCE_FILES})
+# Post Build Error for MSVC Here!
 find_program(SHELL_EXE NAMES sh bash $ENV{SHELL})
 add_custom_command(TARGET OpenSCAD POST_BUILD
     COMMAND "${SHELL_EXE}"

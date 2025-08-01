@@ -24,6 +24,7 @@
 #include <QRegularExpression>
 #include <QShortcut>
 #include <Qsci/qscicommandset.h>
+#include <Qsci/qsciscintilla.h>
 
 #include "gui/Preferences.h"
 #include "platform/PlatformUtils.h"

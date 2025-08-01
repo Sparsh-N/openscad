@@ -1,55 +1,25 @@
 ﻿{
   "configurations": [
 		{
-			"name": "x86-Debug",
-			"generator": "Ninja",
-			"configurationType": "Debug",
-			"inheritEnvironments": [
-				"msvc_x86"
-			],
-			"buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-			"installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\installDebug\\${name}",
-			"cmakeCommandArgs": "--no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_PATH}\\scripts\\buildsystems\\vcpkg.cmake -DCMAKE_CXX_FLAGS=\"/we4316 /EHsc\"",
-			"buildCommandArgs": "-v",
-			"ctestCommandArgs": ""
-		},
-		{
-			"name": "x86-Release",
-			"generator": "Ninja",
-			"configurationType": "Release",
-			"inheritEnvironments": [
-				"msvc_x86"
-			],
-			"buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-			"installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\installRelease\\${name}",
-			"cmakeCommandArgs": "--no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_PATH}\\scripts\\buildsystems\\vcpkg.cmake -DCMAKE_CXX_FLAGS=\"/we4316 /EHsc\"",
-			"buildCommandArgs": "-v",
-			"ctestCommandArgs": ""
-		},
-		{
 			"name": "x64-Debug",
-			"generator": "Ninja",
+			"generator": "Visual Studio 17 2022 Win64",
 			"configurationType": "Debug",
-			"inheritEnvironments": [
-				"msvc_x64_x64"
-			],
-			"buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-			"installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-			"cmakeCommandArgs": "--no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_PATH}\\scripts\\buildsystems\\vcpkg.cmake -DCMAKE_CXX_FLAGS=\"/we4316 /EHsc\"",
+			"inheritEnvironments": [ "msvc_x64_x64" ],
+			"buildRoot": "${projectDir}\\build\\${name}",
+			"installRoot": "${projectDir}\\install\\${name}",
+			"cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DUSE_BUILTIN_OPENCSG=TRUE -DENABLE_CAIRO=FALSE -DHEADLESS=ON",
 			"buildCommandArgs": "-v",
 			"ctestCommandArgs": ""
 		},
 		{
 			"name": "x64-Release",
-			"generator": "Ninja",
+			"generator": "Visual Studio 17 2022 Win64",
 			"configurationType": "Release",
-			"inheritEnvironments": [
-				"msvc_x64_x64"
-			],
-			"buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-			"installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-			"cmakeCommandArgs": "--no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE=${env.VCPKG_PATH}\\scripts\\buildsystems\\vcpkg.cmake -DCMAKE_CXX_FLAGS=\"/we4316 /EHsc\"",
-			"buildCommandArgs": "-v",
+			"inheritEnvironments": [ "msvc_x64_x64" ],
+			"buildRoot": "${projectDir}\\build\\${name}",
+			"installRoot": "${projectDir}\\install\\${name}",
+			"cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DUSE_BUILTIN_OPENCSG=TRUE -DENABLE_CAIRO=FALSE -DHEADLESS=ON",
+			"buildCommandArgs": "",
 			"ctestCommandArgs": ""
 		}
   ]
