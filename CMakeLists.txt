@@ -118,7 +118,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/submodules/sanitizers-cmake/cmake" ${
 find_package(Sanitizers)
 
 # Strict c++17, e.g. no GNU extensions
-set_property(TARGET OpenSCAD PROPERTY CXX_STANDARD 17)
+set_property(TARGET OpenSCAD PROPERTY CXX_STANDARD 20)
 set_property(TARGET OpenSCAD PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET OpenSCAD PROPERTY CXX_STANDARD_REQUIRED ON)
 # Output compilation database (compile_commands.json), so we can e.g. run clang-tidy or other tools separately
@@ -223,7 +223,7 @@ else()
   set(SUFFIX_WITH_DASH "")
 endif()
 
-if (MXECROSS OR WIN32)
+if (MXECROSS OR WIN32 OR MSVC) # TODO Add MSVC support here?
   add_subdirectory(winconsole)
   set_property(TARGET OpenSCAD PROPERTY WIN32_EXECUTABLE ON)
 endif()
@@ -349,9 +349,10 @@ if (MSVC)
   target_include_directories(OpenSCAD SYSTEM PRIVATE ${HARFBUZZ_INCLUDE_DIRS}/harfbuzz)
   target_link_libraries(OpenSCAD PRIVATE harfbuzz::harfbuzz)
 
-  find_package(unofficial-fontconfig CONFIG REQUIRED) # TODO Test if this is working or not
-  target_link_libraries(OpenSCAD PRIVATE unofficial::fontconfig::fontconfig)
-
+  find_package(Fontconfig) # TODO Test if this is working or not
+  target_link_libraries(OpenSCAD PRIVATE Fontconfig::Fontconfig)
+  PKG_CHECK_MODULES(GLIB2 REQUIRED IMPORTED_TARGET glib-2.0)
+  target_link_libraries(OpenSCAD PRIVATE PkgConfig::GLIB2)
   # GLib not needed?
   # find_package(unofficial-glib CONFIG REQUIRED)
   # target_include_directories(OpenSCAD SYSTEM PRIVATE ${GLIB2_INCLUDE_DIRS})
@@ -360,7 +361,7 @@ if (MSVC)
   find_package(double-conversion CONFIG REQUIRED)
   target_link_libraries(OpenSCAD PRIVATE double-conversion::double-conversion)
 
-  find_library(GETTEXT_LIBRARY libintl) # Switch to intl, as this it what vcpkg configures
+  find_library(GETTEXT_LIBRARY intl) # Switch to intl, as this it what vcpkg configures
   target_link_libraries(OpenSCAD PRIVATE ${GETTEXT_LIBRARY})
 
   # call before setting local CMAKE_MODULE_PATH so we use VCPKG version of FindGLEW
@@ -517,7 +518,7 @@ if(ENABLE_SPNAV)
     message(STATUS "SpNav: disabled")
   endif()
 endif()
-
+set(ENABLE_CAIRO OFF)
 if(ENABLE_CAIRO)
   find_package(Cairo 1.14 QUIET)
   if (CAIRO_VERSION)
@@ -614,6 +615,9 @@ if(NOT HEADLESS)
   endif()
 
   if (USE_QT6)
+    # still cant work on vcpkg?
+    set(Qt6_DIR "D:/Qt/6.9.1/msvc2022_64/lib/cmake/Qt6")
+    set(CMAKE_PREFIX_PATH "D:/Qt/6.9.1/msvc2022_64")
     find_package(Qt6 COMPONENTS Core Core5Compat Widgets Multimedia OpenGL OpenGLWidgets Concurrent Network Svg ${QT_TEST_IF_ANY} REQUIRED QUIET)
     message(STATUS "Qt6: ${Qt6_VERSION}")
 
@@ -1338,11 +1342,18 @@ endif()
 
 target_sources(OpenSCAD PRIVATE ${Sources} ${RESOURCE_FILES})
 # Post Build Error for MSVC Here!
-find_program(SHELL_EXE NAMES sh bash $ENV{SHELL})
-add_custom_command(TARGET OpenSCAD POST_BUILD
+if (MSVC)
+  find_program(SHELL_EXE NAMES bash PATHS "C:/Program Files/Git/bin" NO_DEFAULT_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+  if(NOT SHELL_EXE)
+    find_program(SHELL_EXE NAMES bash NO_SYSTEM_ENVIRONMENT_PATH)
+  endif()
+else()
+  find_program(SHELL_EXE NAMES sh bash $ENV{SHELL})
+  add_custom_command(TARGET OpenSCAD POST_BUILD
     COMMAND "${SHELL_EXE}"
     ARGS "${CMAKE_CURRENT_LIST_DIR}/scripts/translation-make.sh" "${SUFFIX_WITH_DASH}"
     COMMENT "Compiling language files")
+endif()
 
 if(APPLE AND NOT APPLE_UNIX)
   set_target_properties(OpenSCAD PROPERTIES
@@ -1378,10 +1389,14 @@ endif()
 
 if (USE_QT6)
   if(NOT HEADLESS)
+    set(QSCINTILLA_LIBRARY "D:/Qt/6.9.1/msvc2022_64/lib/qscintilla2_qt6.lib")
     target_link_libraries(OpenSCAD PRIVATE
       Qt6::Core Qt6::Core5Compat Qt6::Widgets Qt6::Multimedia Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Concurrent Qt6::Network Qt6::Svg
-      ${QT6QSCINTILLA_LIBRARY} ${Qt6DBus_LIBRARIES} ${Qt6Gamepad_LIBRARIES}
+      ${QSCINTILLA_LIBRARY} ${Qt6DBus_LIBRARIES} ${Qt6Gamepad_LIBRARIES}
     )
+    find_package(unofficial-qscintilla CONFIG REQUIRED)
+    add_library(qscintilla::qscintilla ALIAS unofficial::qscintilla::qscintilla)
+    target_link_libraries(OpenSCAD PRIVATE unofficial::qscintilla::qscintilla)
   endif()
   if(ENABLE_GUI_TESTS)
     target_link_libraries(OpenSCAD PRIVATE Qt6::Test)

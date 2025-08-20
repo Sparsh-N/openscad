@@ -342,7 +342,7 @@ public:
     ss << encoded;
     while (ss.good()) {
       item_type item;
-      ss >> item;
+      // ss >> item;
       if (item) {
         items.push_back(item);
       }

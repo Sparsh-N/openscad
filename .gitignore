@@ -70,6 +70,8 @@ src/*.debug
 .DS_Store
 /build
 /build-web
+/build*
+/scripts/msvc-build.bat
 /release
 /vcpkg_installed
 tests/DartConfiguration.tcl

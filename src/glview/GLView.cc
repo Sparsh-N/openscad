@@ -6,6 +6,10 @@
 #include "utils/printutils.h"
 #include "glview/Renderer.h"
 #include "utils/degree_trig.h"
+// Hershey resolves DrawText to DrawTextW for Unicode Characters
+#ifdef DrawText
+#undef DrawText
+#endif
 #include "glview/hershey.h"
 
 #include <functional>
@@ -630,7 +634,7 @@ void GLView::decodeMarkerValue(double i, double l, int size_div_sm)
         }
         axis_draw(x, y, font_size, baseline_offset);
       };
-
+    
     hershey::DrawText(pos_number_str, i, 0,
                       hershey::TextAlign::kCenter, font_size, plot_fun);
     if (needs_glend) glEnd();

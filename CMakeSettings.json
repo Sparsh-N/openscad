@@ -7,7 +7,7 @@
 			"inheritEnvironments": [ "msvc_x64_x64" ],
 			"buildRoot": "${projectDir}\\build\\${name}",
 			"installRoot": "${projectDir}\\install\\${name}",
-			"cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DUSE_BUILTIN_OPENCSG=TRUE -DENABLE_CAIRO=FALSE -DHEADLESS=ON",
+			"cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=D:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DUSE_BUILTIN_OPENCSG=TRUE -DENABLE_CAIRO=FALSE -DHEADLESS=ON",
 			"buildCommandArgs": "-v",
 			"ctestCommandArgs": ""
 		},
@@ -18,7 +18,7 @@
 			"inheritEnvironments": [ "msvc_x64_x64" ],
 			"buildRoot": "${projectDir}\\build\\${name}",
 			"installRoot": "${projectDir}\\install\\${name}",
-			"cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DUSE_BUILTIN_OPENCSG=TRUE -DENABLE_CAIRO=FALSE -DHEADLESS=ON",
+			"cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=D:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DUSE_BUILTIN_OPENCSG=TRUE -DENABLE_CAIRO=FALSE -DHEADLESS=ON",
 			"buildCommandArgs": "",
 			"ctestCommandArgs": ""
 		}
