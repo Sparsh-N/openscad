@@ -435,7 +435,7 @@ def upload_html(page_url, title, html):
 # --- End Web Upload ---
 
 debug_test_pp = False
-#debug_test_pp = True
+debug_test_pp = True
 debugfile = None
 def debug(x):
     global debugfile

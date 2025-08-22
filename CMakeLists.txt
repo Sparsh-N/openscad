@@ -1016,10 +1016,10 @@ if(ENABLE_MANIFOLD)
     else()
       add_subdirectory(submodules/manifold EXCLUDE_FROM_ALL)
     endif()
-    message(STATUS "mainfold submodule: ${manifold_VERSION}")
+    message(STATUS "manifold submodule: ${manifold_VERSION}")
   else()
     find_package(manifold REQUIRED QUIET)
-    message(STATUS "mainfold: ${manifold_VERSION}")
+    message(STATUS "manifold: ${manifold_VERSION}")
   endif()
   target_link_libraries(OpenSCAD PRIVATE manifold::manifold)
   add_sanitizers(manifold)
@@ -1342,7 +1342,12 @@ endif()
 
 target_sources(OpenSCAD PRIVATE ${Sources} ${RESOURCE_FILES})
 # Post Build Error for MSVC Here!
-if (MSVC)
+if (MSVC) # TEMPORARILY SET to qt6 dir only TODO fix
+  add_custom_command(TARGET OpenSCAD POST_BUILD
+    COMMAND echo "Built exe path: $<TARGET_FILE:OpenSCAD>"
+    COMMAND ${Qt6_DIR}/bin/windeployqt $<TARGET_FILE:OpenSCAD>
+    COMMENT "Running windeployqt on OpenSCAD executable"
+  )
   find_program(SHELL_EXE NAMES bash PATHS "C:/Program Files/Git/bin" NO_DEFAULT_PATH NO_SYSTEM_ENVIRONMENT_PATH)
   if(NOT SHELL_EXE)
     find_program(SHELL_EXE NAMES bash NO_SYSTEM_ENVIRONMENT_PATH)
@@ -1394,9 +1399,6 @@ if (USE_QT6)
       Qt6::Core Qt6::Core5Compat Qt6::Widgets Qt6::Multimedia Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Concurrent Qt6::Network Qt6::Svg
       ${QSCINTILLA_LIBRARY} ${Qt6DBus_LIBRARIES} ${Qt6Gamepad_LIBRARIES}
     )
-    find_package(unofficial-qscintilla CONFIG REQUIRED)
-    add_library(qscintilla::qscintilla ALIAS unofficial::qscintilla::qscintilla)
-    target_link_libraries(OpenSCAD PRIVATE unofficial::qscintilla::qscintilla)
   endif()
   if(ENABLE_GUI_TESTS)
     target_link_libraries(OpenSCAD PRIVATE Qt6::Test)
