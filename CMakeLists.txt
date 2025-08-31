@@ -118,7 +118,11 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/submodules/sanitizers-cmake/cmake" ${
 find_package(Sanitizers)
 
 # Strict c++17, e.g. no GNU extensions
-set_property(TARGET OpenSCAD PROPERTY CXX_STANDARD 20)
+if (MSVC) # For MSVC, errors show up when using c++ 17 for build.
+  set_property(TARGET OpenSCAD PROPERTY CXX_STANDARD 20)
+else()
+  set_property(TARGET OpenSCAD PROPERTY CXX_STANDARD 17)
+endif()
 set_property(TARGET OpenSCAD PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET OpenSCAD PROPERTY CXX_STANDARD_REQUIRED ON)
 # Output compilation database (compile_commands.json), so we can e.g. run clang-tidy or other tools separately
@@ -223,7 +227,7 @@ else()
   set(SUFFIX_WITH_DASH "")
 endif()
 
-if (MXECROSS OR WIN32 OR MSVC) # TODO Add MSVC support here?
+if (MXECROSS OR WIN32)
   add_subdirectory(winconsole)
   set_property(TARGET OpenSCAD PROPERTY WIN32_EXECUTABLE ON)
 endif()
@@ -274,8 +278,7 @@ macro(find_graphics)
   if(NULLGL)
     target_compile_definitions(OpenSCAD PRIVATE NULLGL)
   else()
-    set(USE_BUILTIN_OPENCSG ON)
-    message(STATUS "USE_BUILTIN_OPENCSG: ${USE_BUILTIN_OPENCSG}")
+
     set(OPENSCAD_UNITY_BUILD ${CMAKE_UNITY_BUILD})
     set(CMAKE_UNITY_BUILD OFF)
     if(NOT USE_BUILTIN_OPENCSG)
@@ -338,7 +341,7 @@ if (MSVC)
   message(STATUS "Eigen: ${Eigen3_VERSION}")
 
   set(Boost_USE_STATIC_LIBS TRUE)
-  find_package(Boost 1.70 REQUIRED COMPONENTS system regex program_options)
+  find_package(Boost 1.70 REQUIRED COMPONENTS regex program_options)
   message(STATUS "Boost: ${Boost_VERSION}")
   target_include_directories(OpenSCAD SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
   target_link_libraries(OpenSCAD PRIVATE ${Boost_LIBRARIES})
@@ -349,19 +352,16 @@ if (MSVC)
   target_include_directories(OpenSCAD SYSTEM PRIVATE ${HARFBUZZ_INCLUDE_DIRS}/harfbuzz)
   target_link_libraries(OpenSCAD PRIVATE harfbuzz::harfbuzz)
 
-  find_package(Fontconfig) # TODO Test if this is working or not
+  find_package(Fontconfig)
   target_link_libraries(OpenSCAD PRIVATE Fontconfig::Fontconfig)
-  PKG_CHECK_MODULES(GLIB2 REQUIRED IMPORTED_TARGET glib-2.0)
+
+  pkg_check_modules(GLIB2 REQUIRED IMPORTED_TARGET glib-2.0)
   target_link_libraries(OpenSCAD PRIVATE PkgConfig::GLIB2)
-  # GLib not needed?
-  # find_package(unofficial-glib CONFIG REQUIRED)
-  # target_include_directories(OpenSCAD SYSTEM PRIVATE ${GLIB2_INCLUDE_DIRS})
-  # target_link_libraries(OpenSCAD PRIVATE unofficial::glib::gio unofficial::glib::glib unofficial::glib::gmodule unofficial::glib::gobject)
 
   find_package(double-conversion CONFIG REQUIRED)
   target_link_libraries(OpenSCAD PRIVATE double-conversion::double-conversion)
 
-  find_library(GETTEXT_LIBRARY intl) # Switch to intl, as this it what vcpkg configures
+  find_library(GETTEXT_LIBRARY intl)
   target_link_libraries(OpenSCAD PRIVATE ${GETTEXT_LIBRARY})
 
   # call before setting local CMAKE_MODULE_PATH so we use VCPKG version of FindGLEW
@@ -370,7 +370,6 @@ if (MSVC)
   # needed for QtQScintilla, maybe others
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 else()
-  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT OpenSCAD)
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
   if(MXECROSS)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/MXE")
@@ -389,7 +388,7 @@ else()
   target_compile_definitions(OpenSCAD PRIVATE EIGEN_DONT_ALIGN)
   message(STATUS "Eigen: ${Eigen3_VERSION}")
 
-  find_package(Boost 1.61 REQUIRED COMPONENTS system regex program_options)
+  find_package(Boost 1.70 REQUIRED COMPONENTS regex program_options)
   message(STATUS "Boost: ${Boost_VERSION}")
   target_include_directories(OpenSCAD SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
   target_link_libraries(OpenSCAD PRIVATE ${Boost_LIBRARIES})
@@ -467,7 +466,7 @@ message(STATUS "Freetype: ${FREETYPE_VERSION_STRING}")
 target_include_directories(OpenSCAD SYSTEM PRIVATE ${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(OpenSCAD PRIVATE ${FREETYPE_LIBRARIES})
 
-find_package(LibXml2 2.11 REQUIRED QUIET)
+find_package(LibXml2 2.9 REQUIRED QUIET)
 message(STATUS "LibXml2: ${LIBXML2_VERSION_STRING}")
 target_include_directories(OpenSCAD SYSTEM PRIVATE ${LIBXML2_INCLUDE_DIR})
 target_link_libraries(OpenSCAD PRIVATE ${LIBXML2_LIBRARIES})
@@ -518,16 +517,21 @@ if(ENABLE_SPNAV)
     message(STATUS "SpNav: disabled")
   endif()
 endif()
-set(ENABLE_CAIRO OFF)
+
 if(ENABLE_CAIRO)
-  find_package(Cairo 1.14 QUIET)
-  if (CAIRO_VERSION)
-    message(STATUS "Cairo: ${CAIRO_VERSION}")
-    target_include_directories(OpenSCAD SYSTEM PRIVATE ${CAIRO_INCLUDE_DIRS})
-    target_link_libraries(OpenSCAD PRIVATE ${CAIRO_LIBRARIES})
-    target_compile_definitions(OpenSCAD PRIVATE ENABLE_CAIRO)
+  if (MSVC)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(CAIRO REQUIRED cairo)
   else()
-    message(STATUS "Cairo: disabled")
+    find_package(Cairo 1.14 QUIET)
+    if (CAIRO_VERSION)
+      message(STATUS "Cairo: ${CAIRO_VERSION}")
+      target_include_directories(OpenSCAD SYSTEM PRIVATE ${CAIRO_INCLUDE_DIRS})
+      target_link_libraries(OpenSCAD PRIVATE ${CAIRO_LIBRARIES})
+      target_compile_definitions(OpenSCAD PRIVATE ENABLE_CAIRO)
+    else()
+      message(STATUS "Cairo: disabled")
+    endif()
   endif()
 else()
   message(STATUS "Cairo: disabled per user request")
@@ -539,7 +543,6 @@ message(STATUS "Flex: ${FLEX_VERSION}")
 find_package(BISON REQUIRED QUIET)
 message(STATUS "Bison: ${BISON_VERSION}")
 
-# MSVC. The logic works and is practically the same, why not just remove the if case altogether?
 find_package(Lib3MF)
 if (Lib3MF_FOUND)
   message(STATUS "lib3mf: ${Lib3MF_VERSION}")
@@ -615,7 +618,6 @@ if(NOT HEADLESS)
   endif()
 
   if (USE_QT6)
-    # still cant work on vcpkg?
     set(Qt6_DIR "D:/Qt/6.9.1/msvc2022_64/lib/cmake/Qt6")
     set(CMAKE_PREFIX_PATH "D:/Qt/6.9.1/msvc2022_64")
     find_package(Qt6 COMPONENTS Core Core5Compat Widgets Multimedia OpenGL OpenGLWidgets Concurrent Network Svg ${QT_TEST_IF_ANY} REQUIRED QUIET)
@@ -1089,6 +1091,7 @@ set(GUI_SOURCES
   src/gui/EventFilter.h
   src/gui/Export3mfDialog.cc
   src/gui/ExportPdfDialog.cc
+  src/gui/ExportSvgDialog.cc
   src/gui/OctoPrintApiKeyDialog.cc
   src/gui/FontListDialog.cc
   src/gui/FontListTableView.cc
@@ -1124,6 +1127,7 @@ set(GUI_SOURCES
   src/gui/IgnoreWheelWhenNotFocused.cc
   src/gui/input/AxisConfigWidget.cc
   src/gui/input/ButtonConfigWidget.cc
+  src/gui/input/MouseConfigWidget.cc
   src/gui/input/InputDriver.cc
   src/gui/input/InputDriverManager.cc
   src/gui/input/InputEventMapper.cc
@@ -1159,6 +1163,7 @@ set(GUI_HEADERS
     src/gui/EventFilter.h
     src/gui/Export3mfDialog.h
     src/gui/ExportPdfDialog.h
+    src/gui/ExportSvgDialog.h
     src/gui/OctoPrintApiKeyDialog.h
     src/gui/FontList.h
     src/gui/FontListDialog.h
@@ -1214,6 +1219,7 @@ set(GUI_UIS
     src/gui/ErrorLog.ui
     src/gui/Export3mfDialog.ui
     src/gui/ExportPdfDialog.ui
+    src/gui/ExportSvgDialog.ui
     src/gui/OctoPrintApiKeyDialog.ui
     src/gui/FontList.ui
     src/gui/FontListDialog.ui
@@ -1227,6 +1233,7 @@ set(GUI_UIS
     src/gui/ViewportControl.ui
     src/gui/input/AxisConfigWidget.ui
     src/gui/input/ButtonConfigWidget.ui
+    src/gui/input/MouseConfigWidget.ui
     src/gui/parameter/ParameterCheckBox.ui
     src/gui/parameter/ParameterComboBox.ui
     src/gui/parameter/ParameterDescriptionWidget.ui
@@ -1341,24 +1348,11 @@ if (SORT_BUILD)
 endif()
 
 target_sources(OpenSCAD PRIVATE ${Sources} ${RESOURCE_FILES})
-# Post Build Error for MSVC Here!
-if (MSVC) # TEMPORARILY SET to qt6 dir only TODO fix
-  add_custom_command(TARGET OpenSCAD POST_BUILD
-    COMMAND echo "Built exe path: $<TARGET_FILE:OpenSCAD>"
-    COMMAND ${Qt6_DIR}/bin/windeployqt $<TARGET_FILE:OpenSCAD>
-    COMMENT "Running windeployqt on OpenSCAD executable"
-  )
-  find_program(SHELL_EXE NAMES bash PATHS "C:/Program Files/Git/bin" NO_DEFAULT_PATH NO_SYSTEM_ENVIRONMENT_PATH)
-  if(NOT SHELL_EXE)
-    find_program(SHELL_EXE NAMES bash NO_SYSTEM_ENVIRONMENT_PATH)
-  endif()
-else()
-  find_program(SHELL_EXE NAMES sh bash $ENV{SHELL})
-  add_custom_command(TARGET OpenSCAD POST_BUILD
+find_program(SHELL_EXE NAMES sh bash $ENV{SHELL})
+add_custom_command(TARGET OpenSCAD POST_BUILD
     COMMAND "${SHELL_EXE}"
     ARGS "${CMAKE_CURRENT_LIST_DIR}/scripts/translation-make.sh" "${SUFFIX_WITH_DASH}"
     COMMENT "Compiling language files")
-endif()
 
 if(APPLE AND NOT APPLE_UNIX)
   set_target_properties(OpenSCAD PROPERTIES
@@ -1379,7 +1373,10 @@ if(APPLE AND NOT APPLE_UNIX)
   file(COPY ${CMAKE_SOURCE_DIR}/templates DESTINATION ${BUNDLE_RESOURCES_DIR})
 
   if(ENABLE_GUI_TESTS)
-    file(COPY ${CMAKE_SOURCE_DIR}/tests/data DESTINATION ${BUNDLE_RESOURCES_DIR}/tests)
+    file(COPY 
+         ${CMAKE_SOURCE_DIR}/tests/data/basic-ux
+         ${CMAKE_SOURCE_DIR}/tests/data/modulecache-tests
+         DESTINATION ${BUNDLE_RESOURCES_DIR}/tests)
   endif()
 
 elseif(MINGW)
